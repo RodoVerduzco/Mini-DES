@@ -9,9 +9,11 @@ const int box[4][4]= {
     {7, 6, 15, 13}
 };
 
-const int key1[4] = {0, 0, 0, 0};
-const int key2[4] = {1, 1, 1, 1};
-const int key3[4] = {0, 1, 0, 1};
+const int key[3][4] = {
+    {0, 0, 0, 0},
+    {1, 1, 1, 1},
+    {0, 1, 0, 1}
+};
 
 int data[8];
 
@@ -19,8 +21,16 @@ int data[8];
  *  Cross Wire will be presented as the example seen in class:
  *     D1->D3   D2->D1    D3->D4    D4->D2
  */
-void crossWire(int data[]){
+void crossWire(int *data){
+  int temp[4];
 
+  for(int i=0; i<4; i++){
+    temp[i] = data[i];
+  }
+  data[0] = temp[2];
+  data[1] = temp[0];
+  data[2] = temp[3];
+  data[3] = temp[1];
 }
 
 void getLeft(int *left, int number[]) {
@@ -35,15 +45,29 @@ void getRight(int *right, int number[]) {
   }
 }
 
+void xorOperation(int *data, const int key[4]) {
+  for(int i=0; i<4; i++){
+    data[i] = data[i]^key[i];
+  }
+}
+
 void des(int number[]){
-  int firstPart[4];
-  int secondPart[4];
+  int leftPart[4];
+  int rightPart[4];
 
-  getLeft(firstPart, data);
-  getRight(secondPart, data);
+  // Separate into 2 arrays
+  getLeft(leftPart, data);
+  getRight(rightPart, data);
 
-   for(int i=0; i<4; i++)
-     printf("%d", secondPart[i]);
+  // Mix the right array
+  crossWire(rightPart);
+
+  // Perform key xor
+  xorOperation(rightPart, key[0]);
+
+  for(int i=0; i<4; i++){
+    printf("%d",rightPart[i]);
+  }
 }
 
 
