@@ -51,22 +51,85 @@ void xorOperation(int *data, const int key[4]) {
   }
 }
 
+// Only need 2 digits, therefore its a static function
+int toDecimal(int *binaryNum) {
+  int decimalNum = 0;
+  decimalNum = binaryNum[1] + binaryNum[0]*2;
+  return decimalNum;
+}
+
+void toBinary(int decimalNum, int * binaryNum) {
+  int k;
+  int i=0;
+  for (int c=8; c>=0; c--){
+    k = decimalNum >> c;
+    if (k & 1)
+      binaryNum[c-1] = 1;
+    else
+      binaryNum[c-1]=0;
+    i++;
+  }
+
+  printf("DEC %d\n", decimalNum);
+  for(int i=0; i<4; i++){
+    printf("%d",binaryNum[i]);
+  }
+  printf("\n");
+}
+
+void appendMessage(int *message, int *first, int *second){
+  for (int i=0; i<4; i++) {
+    message[i] = first[i];
+    message[i+4] = second[i];
+  }
+}
+
+/*
+ *  DES FUNCTION
+ */
 void des(int number[]){
+  int encrypted_message[8];
+
+  // Dividing Variables
   int leftPart[4];
   int rightPart[4];
+  int changedPart[4];
 
-  // Separate into 2 arrays
-  getLeft(leftPart, data);
-  getRight(rightPart, data);
+  // Table looking variables
+  int firstTable[2];
+  int secondTable[2];
 
-  // Mix the right array
-  crossWire(rightPart);
+  int binaryNum[4];
 
-  // Perform key xor
-  xorOperation(rightPart, key[0]);
+  for(int j=0; j<3; j++){
+    // Separate into 2 arrays
+    getLeft(leftPart, number);
+    getRight(rightPart, number);
+    getRight(changedPart, number);
 
-  for(int i=0; i<4; i++){
-    printf("%d",rightPart[i]);
+    // Mix the right array
+    crossWire(changedPart);
+
+    // Perform key xor
+    xorOperation(changedPart, key[j]);
+
+    firstTable[0] = changedPart[0];
+    firstTable[1] = changedPart[3];
+    secondTable[0] = changedPart[1];
+    secondTable[1] = changedPart[2];
+
+    int row = toDecimal(firstTable);
+    int column = toDecimal(secondTable);
+
+    toBinary(box[row][column], binaryNum);
+
+    // Xor with table
+    xorOperation(changedPart, binaryNum);
+
+    // xor with left
+    xorOperation(changedPart, leftPart);
+
+    appendMessage(number, rightPart, changedPart);
   }
 }
 
